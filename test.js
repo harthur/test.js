@@ -1,69 +1,31 @@
 var assert = require("assert");
 
+var bins = 4;
 
-function test(r1, r2, expected) {
-  var overlaps = doesOverlap(r1, r2);
+var groups = [
+  [0, 22, -22, 170, -170, 180],
+  [45, -140, 30, -150],
+  [90, -90, 110, -70],
+  [140, -45, -30, 150]
+];
 
-  assert.equal(overlaps, expected, JSON.stringify(r1) + JSON.stringify(r2));
+for (var i = 0; i < groups.length; i++) {
+  groups[i].forEach(function(angle) {
+    var bin = binFor(angle, bins);
+    console.log(angle, i, bin);
+
+    assert.equal(i, bin, angle + " " + i + " " + bin)
+  })
 }
 
-var r1 = {x: 0, y: 0, width: 10, height: 10};
-var r2 = {x: 0, y: 20, width: 10, height: 10};
-
-test(r1, r2, false);
-test(r2, r1, false);
-
-r1 = {x: 0, y: 0, width: 10, height: 10};
-r2 = {x: 20, y: 0, width: 10, height: 10};
-
-test(r1, r2, false);
-test(r2, r1, false);
-
-r1 = {x: 0, y: 0, width: 10, height: 10};
-r2 = {x: 5, y: 5, width: 10, height: 10};
-
-test(r1, r2, false);
-test(r2, r1, false);
-
-r1 = {x: 0, y: 0, width: 10, height: 10};
-r2 = {x: 2, y: 2, width: 10, height: 10};
-
-test(r1, r2, true);
-test(r2, r1, true);
-
-
-r1 = {x: 0, y: 0, width: 10, height: 10};
-r2 = {x: 2, y: 2, width: 8, height: 8};
-
-test(r1, r2, true);
-test(r2, r1, true);
-
-r1 = {x: 0, y: 0, width: 10, height: 10};
-r2 = {x: 2, y: 2, width: 1, height: 1};
-
-test(r1, r2, false);
-test(r2, r1, true);
-
-
-function doesOverlap(cat, rect) {
-  var overlapW, overlapH;
-
-  if (cat.x > rect.x) {
-    overlapW = Math.min((rect.x + rect.width) - cat.x, cat.width);
+function binFor(angle, bins) {
+  if (angle < 0) {
+    angle += 180;
   }
-  else {
-    overlapW = Math.min((cat.x + cat.width) - rect.x, rect.width);
-  }
+  var size = 90 / bins;
+  angle += size;
+  angle %= 180;
 
-  if (cat.y > rect.y) {
-    overlapH = Math.min((rect.y + rect.height) - cat.y, cat.height);
-  }
-  else {
-    overlapH = Math.min((cat.y + cat.height) - rect.y, rect.height);
-  }
-
-  if (overlapW > 0 && overlapH > 0) {
-    return (overlapH * overlapW) > (cat.width * cat.height * 0.5);
-  }
-  return false;
+  var bin = Math.floor(angle / 181 * bins);
+  return bin;
 }
