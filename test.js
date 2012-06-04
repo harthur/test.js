@@ -1,31 +1,19 @@
-var assert = require("assert");
+var util  = require('util'),
+    spawn = require('child_process').spawn;
 
-var bins = 4;
 
-var groups = [
-  [0, 22, -22, 170, -170, 180],
-  [45, -140, 30, -150],
-  [90, -90, 110, -70],
-  [140, -45, -30, 150]
-];
+for (var i = 0; i < 5; i++) {
+  var test2 = spawn('node', ['test2.js', i]);
 
-for (var i = 0; i < groups.length; i++) {
-  groups[i].forEach(function(angle) {
-    var bin = binFor(angle, bins);
-    console.log(angle, i, bin);
+  test2.stdout.on('data', function (data) {
+    console.log('stdout: ' + data);
+  });
 
-    assert.equal(i, bin, angle + " " + i + " " + bin)
-  })
-}
+  test2.stderr.on('data', function (data) {
+    console.log('stderr: ' + data);
+  });
 
-function binFor(angle, bins) {
-  if (angle < 0) {
-    angle += 180;
-  }
-  var size = 90 / bins;
-  angle += size;
-  angle %= 180;
-
-  var bin = Math.floor(angle / 181 * bins);
-  return bin;
+  test2.on('exit', function (code) {
+    console.log('child process exited with code ' + code);
+  });
 }
